@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload PDF - Count Pages</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    .upload-area {
+      border: 2px dashed #333;
+      padding: 40px;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+    .upload-area:hover {
+      background: #f5f5f5;
+    }
+    #fileInput {
+      display: none;
+    }
+    .file-info {
+      background: #e8f5e9;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      display: none;
+    }
+    .file-info.show {
+      display: block;
+    }
+    .file-name {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .page-count {
+      color: #2e7d32;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .total-pages {
+      background: #1976d2;
+      color: white;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 8px;
+      display: none;
+      text-align: center;
+      font-size: 20px;
+    }
+    .total-pages.show {
+      display: block;
+    }
+    .loading {
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <h1>📄 Upload PDF - Count Pages</h1>
+  
+  <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+    <p><strong>Click to Upload PDF</strong></p>
+    <p>or drag and drop PDF here</p>
+    <p style="color: #666; font-size: 14px;">Multiple files allowed</p>
+  </div>
+  
+  <input type="file" id="fileInput" accept=".pdf" multiple>
+  
+  <div id="fileList"></div>
+  
+  <div id="totalPages" class="total-pages"></div>
+
+  <!-- Load pdf-parse -->
+  <script src="https://unpkg.com/pdf-parse@1.4.5/lib/pdf-parse.min.js"></script>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const fileList = document.getElementById('fileList');
+    const totalPagesEl = document.getElementById('totalPages');
+
+    fileInput.addEventListener('change', handleFiles);
+
+    async function handleFiles(e) {
+      const files = Array.from(e.target.files);
+      
+      fileList.innerHTML = '';
+      let grandTotal = 0;
+
+      for (const file of files) {
+        // Create file info element
+        const fileDiv = document.createElement('div');
+        fileDiv.className = 'file-info show';
+        fileDiv.innerHTML = `
+          <div class="file-name">📄 ${file.name}</div>
+          <div id="count-${file.name.replace(/\W/g, '_')}" class="loading">Reading PDF...</div>
+        `;
+        fileList.appendChild(fileDiv);
+
+        // Read PDF and count pages using pdf-parse
+        try {
+          const arrayBuffer = await file.arrayBuffer();
+          const uint8Array = new Uint8Array(arrayBuffer);
+          
+          // Use pdf-parse to count pages
+          const pdfData = await pdfParse(uint8Array);
+          const pages = pdfData.numpages;
+          
+          grandTotal += pages;
+          
+          document.getElementById(`count-${file.name.replace(/\W/g, '_')}`).innerHTML = 
+            `<span class="page-count">✅ ${pages} page(s)</span>`;
+            
+          console.log(`${file.name}: ${pages} pages`);
+          
+        } catch (error) {
+          console.error(`Error reading ${file.name}:`, error);
+          document.getElementById(`count-${file.name.replace(/\W/g, '_')}`).innerHTML = 
+            `<span style="color: red;">❌ Error: ${error.message}</span>`;
+        }
+      }
+
+      // Show total
+      if (files.length > 0) {
+        totalPagesEl.className = 'total-pages show';
+        totalPagesEl.innerHTML = `📊 Total: ${grandTotal} page(s)`;
+        console.log(`Grand Total: ${grandTotal} pages`);
+      }
+    }
+  </script>
+</body>
+</html>
+

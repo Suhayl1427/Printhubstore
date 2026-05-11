@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - PRINTHUB</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Additional Admin Styles */
+    
+    /* Hide dashboard by default - only show after login */
+    #adminDashboard {
+      display: none;
+    }
+    
+    .new-order-highlight {
+      animation: highlightNew 2s ease-out;
+    }
+
+    @keyframes highlightNew {
+      0% { background-color: #dcfce7; }
+      100% { background-color: transparent; }
+    }
+
+    .auto-refresh-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text-gray);
+    }
+
+    .refresh-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--success-color);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .new-orders-notification {
+      background: var(--success-color);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      display: none;
+      animation: slideDown 0.3s ease;
+    }
+
+    .new-orders-notification.show {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    @keyframes slideDown {
+      from {
+        transform: translateY(-10px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .order-timestamp {
+      font-size: 0.75rem;
+      color: var(--text-gray);
+    }
+
+    .file-list-mini {
+      font-size: 0.875rem;
+      color: var(--text-gray);
+    }
+
+    .file-list-mini li {
+      margin-bottom: 0.25rem;
+    }
+
+    .view-files-btn {
+      background: var(--primary-color);
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      border: none;
+      margin-left: 0.5rem;
+    }
+
+    .view-files-btn:hover {
+      background: var(--primary-dark);
+    }
+  </style>
+</head>
+<body>
+  <!-- Notification Toast -->
+  <div class="notification" id="notification">
+    <span id="notificationText">Notification</span>
+  </div>
+
+  <!-- New Orders Notification -->
+  <div class="new-orders-notification" id="newOrdersNotification">
+    <span>🆕</span>
+    <span id="newOrdersCount">0</span> new order(s) received
+  </div>
+
+  <!-- Login Screen -->
+  <div id="loginScreen">
+    <div class="login-container">
+      <h2>Admin Login</h2>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" class="form-control" required>
+        </div>
+        <div id="loginError" class="error-message"></div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard -->
+  <div id="adminDashboard">
+    <div class="admin-layout">
+      <!-- Sidebar -->
+      <aside class="admin-sidebar">
+        <a href="index.html" class="logo">
+          <span class="logo-icon">PRINTHUB</span>
+        </a>
+        <nav class="admin-nav">
+          <ul>
+            <li><a href="#" class="active">Dashboard</a></li>
+            <li><a href="#" onclick="logout()">Logout</a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="admin-main">
+        <header class="admin-header">
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <h1>Admin Dashboard</h1>
+            <div class="auto-refresh-indicator">
+              <div class="refresh-dot"></div>
+              <span>Auto-refresh: 10s</span>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div class="new-orders-notification" id="newOrdersNotificationHeader">
+              <span>🆕</span>
+              <span id="newOrdersCountHeader">0</span> new
+            </div>
+            <button class="btn btn-secondary" onclick="refreshData()">🔄 Refresh</button>
+          </div>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card total">
+            <h3>Total Orders</h3>
+            <div class="value" id="totalOrders">0</div>
+          </div>
+          <div class="stat-card pending">
+            <h3>Pending</h3>
+            <div class="value" id="pendingOrders">0</div>
+          </div>
+          <div class="stat-card printing">
+            <h3>Printing</h3>
+            <div class="value" id="printingOrders">0</div>
+          </div>
+          <div class="stat-card completed">
+            <h3>Completed</h3>
+            <div class="value" id="completedOrders">0</div>
+          </div>
+        </div>
+
+        <!-- Orders Section -->
+        <section class="orders-section">
+          <div class="orders-header">
+            <h2>All Orders</h2>
+            <span id="lastUpdated" class="order-timestamp">Last updated: Never</span>
+          </div>
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Files</th>
+                <th>Pages/Copies</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+              <tr>
+                <td colspan="8" class="empty-state">Loading orders...</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- File Preview Modal -->
+  <div class="modal" id="filePreviewModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>📄 Order Files Preview</h3>
+        <button class="modal-close" onclick="closeFilePreview()">&times;</button>
+      </div>
+      <div class="modal-body" id="filePreviewBody">
+        <!-- Files will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let adminSession = localStorage.getItem('adminSession');
+    let adminUsername = localStorage.getItem('adminUsername');
+    let orders = [];
+    let lastOrderCount = 0;
+    let autoRefreshInterval;
+    const AUTO_REFRESH_INTERVAL = 10000; // 10 seconds
+
+    document.addEventListener('DOMContentLoaded', function() {
+      if (adminSession) {
+        checkSession();
+      }
+    });
+
+    function checkSession() {
+      fetch('/api/admin/check', {
+        headers: { 'x-admin-session': adminSession }
+      })
+      .then(function(response) { return response.json(); })
+      .then(function(data) {
+        if (data.isAdmin) {
+          showDashboard();
+        } else {
+          clearSession();
+        }
+      })
+      .catch(function(error) {
+        console.error('Session check error:', error);
+      });
+    }
+
+    function showDashboard() {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('adminDashboard').style.display = 'block';
+      loadStats();
+      loadOrders();
+      startAutoRefresh();
+    }
+
+    function startAutoRefresh() {
+      // Clear any existing interval
+      if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+      }
+      
+      // Set up new auto-refresh interval
+      autoRefreshInterval = setInterval(function() {
+        loadStats();
+        loadOrders(true); // Pass true to enable new order detection
+      }, AUTO_REFRESH_INTERVAL);
+      
+      console.log('Auto-refresh started (every ' + (AUTO_REFRESH_INTERVAL / 1000) + ' seconds)');
+    }
+
+    function stopAutoRefresh() {
+      if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+      }
+    }
+
+    function loadStats() {
+      fetch('/api/admin/stats')
+        .then(function(response) { return response.json(); })
+        .then(function(stats) {
+          document.getElementById('totalOrders').textContent = stats.totalOrders || 0;
+          document.getElementById('pendingOrders').textContent = stats.pendingOrders || 0;
+          document.getElementById('printingOrders').textContent = stats.printingOrders || 0;
+          document.getElementById('completedOrders').textContent = stats.completedOrders || 0;
+        })
+        .catch(function(error) {
+          console.error('Error loading stats:', error);
+        });
+    }
+
+    function loadOrders(checkForNew) {
+      fetch('/api/orders')
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+          // Check for new orders
+          if (checkForNew && orders.length > 0 && data.length > orders.length) {
+            const newOrderCount = data.length - orders.length;
+            showNewOrdersNotification(newOrderCount);
+          }
+          
+          orders = data;
+          lastOrderCount = orders.length;
+          renderOrders(orders);
+          updateLastUpdated();
+        })
+        .catch(function(error) {
+          console.error('Error loading orders:', error);
+          document.getElementById('ordersTableBody').innerHTML = '<tr><td colspan="8" class="empty-state">Error loading orders</td></tr>';
+        });
+    }
+
+    function showNewOrdersNotification(count) {
+      // Show notification
+      var notification = document.getElementById('notification');
+      document.getElementById('notificationText').textContent = '🆕 ' + count + ' new order(s) received!';
+      notification.style.background = 'var(--success-color)';
+      notification.classList.add('show');
+      setTimeout(function() {
+        notification.classList.remove('show');
+        notification.style.background = 'var(--danger-color)';
+      }, 4000);
+
+      // Update header badge
+      var headerBadge = document.getElementById('newOrdersNotificationHeader');
+      if (headerBadge) {
+        document.getElementById('newOrdersCountHeader').textContent = count;
+        headerBadge.classList.add('show');
+        setTimeout(function() {
+          headerBadge.classList.remove('show');
+        }, 5000);
+      }
+
+      // Play notification sound effect (optional visual flash)
+      document.body.style.animation = 'none';
+      setTimeout(function() {
+        document.body.style.animation = '';
+      }, 100);
+    }
+
+    function renderOrders(ordersToRender) {
+      var tbody = document.getElementById('ordersTableBody');
+      
+      if (!ordersToRender || ordersToRender.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No orders found</td></tr>';
+        return;
+      }
+
+      var html = '';
+      for (var i = 0; i < ordersToRender.length; i++) {
+        var order = ordersToRender[i];
+        // Use trackingId if available, otherwise fall back to _id
+        var orderId = order.trackingId || order._id || order.id;
+        var files = typeof order.files === 'string' ? JSON.parse(order.files) : (order.files || []);
+        var totalPages = order.totalPages || 0;
+        var totalPrice = order.totalPrice || 0;
+        var status = order.status || 'Pending';
+        var copies = order.copies || 1;
+        var createdAt = order.createdAt ? new Date(order.createdAt) : new Date();
+        
+        // Format date
+        var dateStr = createdAt.toLocaleDateString() + ' ' + createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        // Generate files preview text
+        var filesPreview = '';
+        if (files.length > 0) {
+          filesPreview = files.length + ' file(s)';
+        } else {
+          filesPreview = 'No files';
+        }
+
+        html += '<tr id="order-' + String(orderId) + '">';
+        html += '<td><strong>' + String(orderId) + '</strong></td>';
+        html += '<td>' + order.customerName + '<br><small>' + order.phone + '</small></td>';
+html += '<td>' + filesPreview;
+        if (files.length > 0) {
+          html += '<br><small><button class="view-files-btn" onclick="viewOrderFiles(\'' + String(orderId) + '\')">View Files</button></small>';
+        }
+        html += '</td>';
+        html += '<td>' + totalPages + ' pages<br><small>×' + copies + ' copy</small></td>';
+        html += '<td>₹' + totalPrice + '</td>';
+        html += '<td><span class="status-badge status-' + status.toLowerCase() + '">' + status + '</span></td>';
+        html += '<td><span class="order-timestamp">' + dateStr + '</span></td>';
+html += '<td>';
+        if (status === 'Pending') {
+          html += '<button class="btn btn-sm btn-primary" onclick="updateStatus(\'' + String(orderId) + '\', \'Printing\')">Start</button> ';
+        }
+        if (status === 'Printing') {
+          html += '<button class="btn btn-sm btn-success" onclick="updateStatus(\'' + String(orderId) + '\', \'Completed\')">Complete</button> ';
+        }
+        html += '<button class="btn btn-sm btn-danger" onclick="deleteOrder(\'' + String(orderId) + '\')">Delete</button>';
+        html += '</td>';
+        html += '</tr>';
+      }
+      tbody.innerHTML = html;
+    }
+
+    function viewOrderFiles(orderId) {
+      var order = orders.find(function(o) {
+        // Find by trackingId or _id
+        return (o.trackingId || o._id || o.id) === orderId;
+      });
+      
+      if (!order) {
+        showNotification('Order not found');
+        return;
+      }
+
+      var files = typeof order.files === 'string' ? JSON.parse(order.files) : (order.files || []);
+      var modal = document.getElementById('filePreviewModal');
+      var body = document.getElementById('filePreviewBody');
+      var displayId = order.trackingId || order._id || order.id;
+      
+      if (files.length === 0) {
+        body.innerHTML = '<p>No files for this order</p>';
+      } else {
+        var html = '<div style="padding: 1rem;">';
+        html += '<h4 style="margin-bottom: 1rem;">Order ' + String(displayId) + ' - ' + order.customerName + '</h4>';
+        
+        for (var i = 0; i < files.length; i++) {
+          var file = files[i];
+        html += '<div style="background: var(--bg-light); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">';
+          html += '<p><strong>' + (i + 1) + '. ' + file.originalName + '</strong></p>';
+          html += '<p style="color: var(--text-gray); font-size: 0.875rem;">Pages: ' + (file.pages || 'Unknown') + '</p>';
+          html += '<div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">';
+          html += '<a href="/api/files/' + file.filename + '" target="_blank" class="btn btn-primary btn-sm">📄 Open</a>';
+          html += '<a href="/api/files/' + file.filename + '" download class="btn btn-secondary btn-sm">📥 Download</a>';
+          html += '</div>';
+          html += '</div>';
+        }
+        
+        html += '</div>';
+        body.innerHTML = html;
+      }
+      
+      modal.classList.add('show');
+    }
+
+    function closeFilePreview() {
+      document.getElementById('filePreviewModal').classList.remove('show');
+    }
+
+    function updateLastUpdated() {
+      var now = new Date();
+      var timeStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      document.getElementById('lastUpdated').textContent = 'Last updated: ' + timeStr;
+    }
+
+    function updateStatus(orderId, newStatus) {
+      fetch('/api/orders/' + orderId + '/status', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      })
+      .then(function(response) { return response.json(); })
+      .then(function(data) {
+        if (data.success) {
+          loadStats();
+          loadOrders(false);
+          showNotification('Status updated to ' + newStatus);
+        }
+      })
+      .catch(function(error) {
+        console.error('Error updating status:', error);
+      });
+    }
+
+    function deleteOrder(orderId) {
+      if (!confirm('Delete this order? This action cannot be undone.')) return;
+      
+      fetch('/api/orders/' + orderId, {
+        method: 'DELETE'
+      })
+      .then(function(response) { return response.json(); })
+      .then(function(data) {
+        if (data.success) {
+          loadStats();
+          loadOrders(false);
+          showNotification('Order deleted successfully');
+        }
+      })
+      .catch(function(error) {
+        console.error('Error deleting order:', error);
+      });
+    }
+
+    function showNotification(message) {
+      var notification = document.getElementById('notification');
+      document.getElementById('notificationText').textContent = message;
+      notification.classList.add('show');
+      setTimeout(function() {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+
+    function refreshData() {
+      loadStats();
+      loadOrders(true); // Enable new order detection on manual refresh
+      showNotification('Data refreshed');
+    }
+
+    function logout() {
+      stopAutoRefresh();
+      fetch('/api/admin/logout', {
+        method: 'POST',
+        headers: { 'x-admin-session': adminSession }
+      });
+      clearSession();
+      location.reload();
+    }
+
+    function clearSession() {
+      adminSession = null;
+      adminUsername = null;
+      localStorage.removeItem('adminSession');
+      localStorage.removeItem('adminUsername');
+    }
+
+    // Close modal when clicking outside
+    document.addEventListener('click', function(e) {
+      var modal = document.getElementById('filePreviewModal');
+      if (e.target === modal) {
+        closeFilePreview();
+      }
+    });
+
+    // Login form handler
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      var username = document.getElementById('username').value.trim();
+      var password = document.getElementById('password').value;
+      var errorDiv = document.getElementById('loginError');
+      
+      errorDiv.textContent = '';
+      errorDiv.style.display = 'none';
+
+      fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username, password: password })
+      })
+      .then(function(response) { return response.json(); })
+      .then(function(data) {
+        if (data.success) {
+          adminSession = data.sessionId;
+          adminUsername = username;
+          localStorage.setItem('adminSession', adminSession);
+          localStorage.setItem('adminUsername', adminUsername);
+          showDashboard();
+        } else {
+          errorDiv.textContent = data.error || 'Login failed';
+          errorDiv.style.display = 'block';
+        }
+      })
+      .catch(function(error) {
+        console.error('Login error:', error);
+        errorDiv.textContent = 'Network error';
+        errorDiv.style.display = 'block';
+      });
+    });
+  </script>
+</body>
+</html>
+

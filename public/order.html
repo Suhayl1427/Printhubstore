@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Place Order - PRINTHUB</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="navbar-container">
+      <a href="index.html" class="logo">
+        <span class="logo-icon">🖨️</span>
+        PRINTHUB
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="order.html" class="active">Place Order</a></li>
+        <li><a href="tracking.html">Track Order</a></li>
+       
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1 class="section-title">📦 Place Your Order</h1>
+    
+    <div class="form-container">
+      <form id="orderForm">
+        <!-- Customer Information -->
+        <div class="form-group">
+          <label for="customerName">Full Name *</label>
+          <input type="text" id="customerName" class="form-control" required placeholder="Enter your full name">
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone Number *</label>
+          <input type="tel" id="phone" class="form-control" required placeholder="Enter your phone number">
+        </div>
+
+        <!-- Multi-File Upload -->
+        <div class="form-group">
+          <label>Upload PDF Documents * (Multiple files allowed)</label>
+          
+          <div class="file-upload" id="fileUploadArea">
+            <input type="file" id="fileInput" accept=".pdf" multiple required>
+            <div class="file-upload-icon">📁</div>
+            <p><strong>Click to upload</strong> or drag and drop</p>
+            <p style="font-size: 0.875rem; color: var(--text-gray);">Upload multiple PDF files (Max 50MB each)</p>
+          </div>
+          
+          <div id="fileList" style="margin-top: 1rem;"></div>
+
+        <!-- Copies -->
+        <div class="form-group">
+          <label for="copies">Number of Copies</label>
+          <input type="number" id="copies" class="form-control" value="1" min="1" max="100">
+        </div>
+
+        <!-- Binding Option -->
+        <div class="form-group">
+          <label class="checkbox-group">
+            <input type="checkbox" id="binding">
+            <span>📎 Add Binding (+₹50)</span>
+          </label>
+        </div>
+
+        <!-- Price Display -->
+        <div class="price-display">
+          <h3>Estimated Total Price</h3>
+          <div class="amount">₹<span id="totalPrice">0</span></div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary" style="width: 100%;" id="submitBtn">
+          Confirm Order
+        </button>
+      </form>
+    </div>
+
+  <!-- Order Confirmation Modal -->
+  <div class="modal" id="confirmationModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🎉 Order Placed Successfully!</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="text-align: center; margin-bottom: 1rem;">Your order has been placed successfully!</p>
+        <div style="background: var(--bg-light); padding: 1.5rem; border-radius: 8px; text-align: center;">
+          <p><strong>Order ID:</strong> <span id="confirmOrderId" style="font-size: 1.5rem; color: var(--primary-color);"></span></p>
+          <p style="margin-top: 0.5rem;">Save this Order ID to track your order status.</p>
+        </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal()">Close</button>
+        <a href="tracking.html" class="btn btn-primary">📍 Track Order</a>
+      </div>
+  </div>
+
+  <script>
+    const PRICE_PER_PAGE = 2;
+    const BINDING_PRICE = 50;
+    const MAX_FILE_SIZE = 50 * 1024 * 1024;
+
+    const fileInput = document.getElementById('fileInput');
+    const fileUploadArea = document.getElementById('fileUploadArea');
+    const fileList = document.getElementById('fileList');
+    const copiesInput = document.getElementById('copies');
+    const bindingInput = document.getElementById('binding');
+    const totalPriceEl = document.getElementById('totalPrice');
+    const orderForm = document.getElementById('orderForm');
+    const confirmationModal = document.getElementById('confirmationModal');
+
+    let selectedFiles = [];
+    let totalPages = 0;
+
+    fileUploadArea.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', (e) => {
+      handleFiles(e.target.files);
+    });
+
+    fileUploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      fileUploadArea.style.borderColor = 'var(--primary-color)';
+    });
+
+    fileUploadArea.addEventListener('dragleave', () => {
+      fileUploadArea.style.borderColor = 'var(--border-color)';
+    });
+
+    fileUploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      fileUploadArea.style.borderColor = 'var(--border-color)';
+      handleFiles(e.dataTransfer.files);
+    });
+
+    async function handleFiles(files) {
+      const newFiles = Array.from(files);
+      
+      for (const file of newFiles) {
+        if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+          alert(`❌ Skipped "${file.name}" - Only PDF files are allowed`);
+          continue;
+        }
+        
+        if (file.size > MAX_FILE_SIZE) {
+          alert(`❌ "${file.name}" is too large (Max 50MB)`);
+          continue;
+        }
+        
+        const existingIndex = selectedFiles.findIndex(f => f.name === file.name && f.size === file.size);
+        if (existingIndex === -1) {
+          selectedFiles.push(file);
+        }
+      }
+      
+      await updateFileList();
+      updatePrice();
+    }
+
+    async function updateFileList() {
+      if (selectedFiles.length === 0) {
+        fileList.innerHTML = '';
+        totalPages = 0;
+        return;
+      }
+
+      let html = `
+        <div style="background: var(--bg-light); border-radius: 8px; padding: 1rem;">
+          <p style="margin: 0 0 0.75rem 0; font-weight: 600;">
+            📄 ${selectedFiles.length} file(s) selected:
+          </p>
+          <ul style="list-style: none; padding: 0; margin: 0;" id="fileListItems">
+      `;
+
+      fileList.innerHTML = html + '<li style="padding: 1rem; text-align: center;"><span class="spinner"></span><br>Counting pages...</li></ul></div>';
+
+      totalPages = 0;
+      let fileItemsHtml = '';
+
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        const pageCount = await analyzePDF(file);
+        totalPages += pageCount;
+        
+        fileItemsHtml += `
+          <li style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid var(--border-color); ${i === selectedFiles.length - 1 ? 'border-bottom: none;' : ''}">
+            <span><strong>${file.name}</strong></span>
+            <span>
+              ${pageCount} page${pageCount > 1 ? 's' : ''}
+              <button type="button"
+                      onclick="removeFile(${i})"
+                      style="margin-left: 0.5rem; background: none; border: none; color: var(--danger-color); cursor: pointer;">
+                ❌
+              </button>
+            </span>
+          </li>
+        `;
+      }
+
+      html = `
+        <div style="background: var(--bg-light); border-radius: 8px; padding: 1rem;">
+          <p style="margin: 0 0 0.75rem 0; font-weight: 600;">
+            📄 ${selectedFiles.length} file(s) selected:
+          </p>
+          <ul style="list-style: none; padding: 0; margin: 0;">
+      ` + fileItemsHtml + `
+          </ul>
+          <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 2px solid var(--border-color);">
+            <strong>Total Pages: ${totalPages}</strong>
+          </div>
+      `;
+
+      fileList.innerHTML = html;
+    }
+
+    async function analyzePDF(file) {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const response = await fetch('/api/analyze-pdf', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.error) {
+          console.warn('PDF analysis failed:', result.error);
+          return 1;
+        }
+        
+        return result.pages || 1;
+        
+      } catch (error) {
+        console.error('Error analyzing PDF:', error);
+        return 1;
+      }
+    }
+
+    function removeFile(index) {
+      selectedFiles.splice(index, 1);
+      updateFileList();
+      updatePrice();
+      fileInput.value = '';
+    }
+
+    function updatePrice() {
+      const copies = parseInt(copiesInput.value) || 1;
+      const binding = bindingInput.checked;
+      
+      const printCost = totalPages * copies * PRICE_PER_PAGE;
+      const bindingCost = binding ? BINDING_PRICE : 0;
+      const total = printCost + bindingCost;
+      
+      totalPriceEl.textContent = total;
+    }
+
+    copiesInput.addEventListener('input', updatePrice);
+    bindingInput.addEventListener('change', updatePrice);
+
+    orderForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      if (selectedFiles.length === 0) {
+        alert('⚠️ Please select at least one PDF file');
+        return;
+      }
+
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ Processing...';
+      
+      const formData = new FormData();
+      formData.append('customerName', document.getElementById('customerName').value);
+      formData.append('phone', document.getElementById('phone').value);
+      formData.append('copies', copiesInput.value);
+      formData.append('binding', bindingInput.checked);
+      
+      selectedFiles.forEach((file) => {
+        formData.append('files', file);
+      });
+
+      try {
+        const response = await fetch('/api/orders', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          document.getElementById('confirmOrderId').textContent = result.orderId;
+          confirmationModal.classList.add('show');
+        } else {
+          alert('Error: ' + (result.error || 'Failed to place order'));
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to place order. Please try again.\nError: ' + error.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Confirm Order';
+      }
+    });
+
+    function closeModal() {
+      confirmationModal.classList.remove('show');
+      orderForm.reset();
+      selectedFiles = [];
+      fileList.innerHTML = '';
+      totalPages = 0;
+      updatePrice();
+    }
+
+    updatePrice();
+  </script>
+</body>
+</html>
