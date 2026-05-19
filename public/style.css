@@ -9,7 +9,7 @@
   --primary-color: #303d58;
   --primary-dark: #202c4b;
   --secondary-color: #059669;
-  --accent-color: #5e8170;
+  --accent-color: #317ec7;
   --danger-color: #dc2626;
   --success-color: #16a34a;
   --warning-color: #92e970;
@@ -59,6 +59,11 @@ body {
   align-items: center;
   gap: 0.5rem;
 }
+.logo-img {
+  height: 55px;
+  width: auto;
+  object-fit: contain;
+}
 
 .logo-icon {
   font-size: 2rem;
@@ -91,10 +96,22 @@ body {
 
 /* Hero Section */
 .hero {
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-  color: rgb(255, 255, 255);
-  padding: 4rem 2rem;
-  text-align: center;
+    background:
+        linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+        url("printnow.png");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    height: 500px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    color: white;
 }
 
 .hero-content {
