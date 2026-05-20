@@ -77,7 +77,7 @@
   <div id="totalPages" class="total-pages"></div>
 
   <!-- Load pdf-parse -->
-  <script src="https://unpkg.com/pdf-parse@1.4.5/lib/pdf-parse.min.js"></script>
+  
 
   <script>
     const fileInput = document.getElementById('fileInput');
@@ -108,7 +108,7 @@
           const uint8Array = new Uint8Array(arrayBuffer);
           
           // Use pdf-parse to count pages
-          const pdfData = await pdfParse(uint8Array);
+          
           const pages = pdfData.numpages;
           
           grandTotal += pages;

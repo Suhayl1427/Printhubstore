@@ -12,7 +12,8 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
-
+const pdfParse = require('pdf-parse');
+const { PDFDocument } = require('pdf-lib');
 // Import Order model
 const Order = require('./models/Order');
 
@@ -59,7 +60,7 @@ async function generateTrackingId() {
 // ============================================
 // PDF-PAGE-COUNT LIBRARY (More reliable than pdf-parse)
 // ============================================
-const pdfLib = require('pdf-lib');
+
 
 // ============================================
 // ADMIN CREDENTIALS
@@ -112,117 +113,81 @@ const upload = multer({
 });
 
 // ============================================
-// PDF PAGE COUNT FUNCTION
+// FAST PDF PAGE COUNT FUNCTION
 // ============================================
 
-// Require pdf-parse at the top level
-const pdfParse = require('pdf-parse');
 
-/**
- * Count pages in a PDF file using pdf-lib with pdf-parse fallback
- * @param {string} pdfPath - Path to the PDF file
- * @returns {Promise<number>} - Number of pages
- */
 async function countPdfPages(pdfPath) {
-  console.log(`[PDF] Counting pages for: ${pdfPath}`);
-  
+
   try {
-    // Check if file exists
-    if (!fs.existsSync(pdfPath)) {
-      console.warn(`[PDF] File not found: ${pdfPath}`);
-      return 1;
-    }
 
-    // Read file buffer
-    const fileBuffer = await fs.promises.readFile(pdfPath);
-    console.log(`[PDF] File size: ${fileBuffer.length} bytes`);
-    
-    // Check if file is valid PDF (starts with %PDF)
-    if (fileBuffer.length < 5) {
-      console.warn(`[PDF] File too small to be valid PDF`);
-      return 1;
-    }
-    
-    const pdfHeader = fileBuffer.slice(0, 4).toString('ascii');
-    console.log(`[PDF] PDF header: ${pdfHeader}`);
-    
-    if (pdfHeader !== '%PDF') {
-      console.warn(`[PDF] Invalid PDF header`);
-      return 1;
-    }
+    // Read PDF buffer
+    const buffer = fs.readFileSync(pdfPath);
 
-    // Method 1: Try pdf-lib first
+    // METHOD 1 — pdf-lib (FAST)
     try {
-      console.log(`[PDF] Trying pdf-lib...`);
-      const pdfDoc = await pdfLib.PDFDocument.load(fileBuffer, {
-        ignoreEncryption: true,
-        updateMetadata: false
+
+      const pdfDoc = await PDFDocument.load(buffer, {
+        ignoreEncryption: true
       });
-      const pageCount = pdfDoc.getPageCount();
-      console.log(`[PDF] pdf-lib result: ${pageCount} pages`);
-      if (pageCount > 0) {
-        return pageCount;
+
+      const pages = pdfDoc.getPageCount();
+
+      console.log('pdf-lib pages:', pages);
+
+      if (pages && pages > 0) {
+        return pages;
       }
-    } catch (pdfLibError) {
-      console.warn(`[PDF] pdf-lib failed: ${pdfLibError.message}`);
+
+    } catch (err) {
+
+      console.log('pdf-lib failed:', err.message);
     }
 
-    // Method 2: Use pdf-parse with correct buffer handling
+    // METHOD 2 — pdf-parse (ACCURATE)
     try {
-      console.log(`[PDF] Trying pdf-parse...`);
-      const parseResult = await pdfParse(fileBuffer);
-      console.log(`[PDF] pdf-parse raw result:`, parseResult);
-      
-      if (parseResult && typeof parseResult.numpages === 'number') {
-        console.log(`[PDF] pdf-parse result: ${parseResult.numpages} pages`);
-        return parseResult.numpages;
+
+      const data = await pdfParse(buffer);
+
+      console.log('pdf-parse pages:', data.numpages);
+
+      if (data.numpages && data.numpages > 0) {
+        return data.numpages;
       }
-      
-      if (parseResult && typeof parseResult.pageCount === 'number') {
-        console.log(`[PDF] pdf-parse pageCount: ${parseResult.pageCount} pages`);
-        return parseResult.pageCount;
-      }
-    } catch (parseError) {
-      console.warn(`[PDF] pdf-parse failed: ${parseError.message}`);
+
+    } catch (err) {
+
+      console.log('pdf-parse failed:', err.message);
     }
 
-    // Method 3: Parse PDF structure manually
+    // METHOD 3 — manual regex fallback
     try {
-      console.log(`[PDF] Trying manual PDF parsing...`);
-      const pdfString = fileBuffer.toString('latin1');
-      
-      // Look for /Count N pattern in PDF catalog
-      const countMatch = pdfString.match(/\/Count\s+(\d+)/);
-      if (countMatch) {
-        const count = parseInt(countMatch[1], 10);
-        console.log(`[PDF] Found /Count ${count} in PDF`);
-        if (count > 0 && count < 10000) { // Reasonable page count limit
-          return count;
-        }
+
+      const pdfText = buffer.toString('latin1');
+
+      const matches = pdfText.match(/\/Type\s*\/Page[^s]/g);
+
+      if (matches && matches.length > 0) {
+
+        console.log('manual pages:', matches.length);
+
+        return matches.length;
       }
-      
-      // Count /Page objects
-      const pageMatches = pdfString.match(/\/Page\s*[^\w]/g);
-      if (pageMatches) {
-        const count = pageMatches.length;
-        console.log(`[PDF] Found ${count} /Page objects`);
-        return count;
-      }
-    } catch (manualError) {
-      console.warn(`[PDF] Manual parsing failed: ${manualError.message}`);
+
+    } catch (err) {
+
+      console.log('manual parser failed');
     }
 
-    // Last resort: default to 1
-    console.warn(`[PDF] All methods failed, defaulting to 1 page`);
     return 1;
-    
+
   } catch (error) {
-    console.error(`[PDF] Error counting pages: ${error.message}`);
-    console.error(`[PDF] Stack: ${error.stack}`);
+
+    console.error('PDF COUNT ERROR:', error);
+
     return 1;
   }
 }
-
 // ============================================
 // MONGODB ATLAS CONNECTION
 // ============================================

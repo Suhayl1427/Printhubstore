@@ -88,7 +88,20 @@
       <div class="modal-body">
         <p style="text-align: center; margin-bottom: 1rem;">Your order has been placed successfully!</p>
         <div style="background: var(--bg-light); padding: 1.5rem; border-radius: 8px; text-align: center;">
-          <p><strong>Order ID:</strong> <span id="confirmOrderId" style="font-size: 1.5rem; color: var(--primary-color);"></span></p>
+          <p class="order-id-row">
+            <strong>Order ID:</strong>
+            <span class="order-id-value" id="confirmOrderId" style="font-size: 1.5rem; color: var(--primary-color);"></span>
+            <button
+              type="button"
+              class="copy-order-id-btn"
+              id="copyOrderIdBtn"
+              aria-label="Copy Order ID"
+              title="Copy Order ID"
+            >
+              📋
+            </button>
+          </p>
+          <p class="order-id-copied" id="orderIdCopied" role="status" aria-live="polite">Copied!</p>
           <p style="margin-top: 0.5rem;">Save this Order ID to track your order status.</p>
         </div>
       <div class="modal-footer">
@@ -313,6 +326,57 @@
       fileList.innerHTML = '';
       totalPages = 0;
       updatePrice();
+    }
+
+    const copyOrderIdBtn = document.getElementById('copyOrderIdBtn');
+    const orderIdCopiedEl = document.getElementById('orderIdCopied');
+    const confirmOrderIdEl = document.getElementById('confirmOrderId');
+
+    function showCopiedFeedback() {
+      if (!orderIdCopiedEl) return;
+      orderIdCopiedEl.classList.remove('show');
+      // force reflow
+      void orderIdCopiedEl.offsetWidth;
+      orderIdCopiedEl.classList.add('show');
+      window.setTimeout(() => {
+        orderIdCopiedEl.classList.remove('show');
+      }, 1200);
+    }
+
+    async function copyToClipboard(text) {
+      if (!text) return false;
+
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+      } catch (err) {
+        // fall back below
+      }
+
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'absolute';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        return ok;
+      } catch (err) {
+        return false;
+      }
+    }
+
+    if (copyOrderIdBtn && confirmOrderIdEl) {
+      copyOrderIdBtn.addEventListener('click', async () => {
+        const orderId = (confirmOrderIdEl.textContent || '').trim();
+        const ok = await copyToClipboard(orderId);
+        if (ok) showCopiedFeedback();
+      });
     }
 
     updatePrice();

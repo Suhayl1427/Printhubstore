@@ -891,5 +891,77 @@ body {
   }
 }
 
+/* Order ID copy (success modal) */
+.order-id-row {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.order-id-value {
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.copy-order-id-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-white);
+  color: var(--primary-color);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  padding: 0;
+}
+
+.copy-order-id-btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(48, 61, 88, 0.35);
+  box-shadow: 0 6px 18px rgba(48, 61, 88, 0.12);
+}
+
+.copy-order-id-btn:active {
+  transform: translateY(0);
+}
+
+.copy-order-id-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(49, 126, 199, 0.22);
+}
+
+.order-id-copied {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  color: var(--success-color);
+  font-weight: 700;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+
+.order-id-copied.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 480px) {
+  .copy-order-id-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+  }
+
+  .order-id-row {
+    gap: 0.4rem;
+  }
+}
+
 
 

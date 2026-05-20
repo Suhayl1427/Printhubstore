@@ -1,21 +1,11 @@
-# TODO - PrintHub Rebuild with HTML, CSS, JS, MongoDB, Mongoose
+# TODO.md
 
-## Phase 1: Update Dependencies
-- [x] Update package.json - keep only mongoose, remove express, express-session, multer, pdf-parse
+## Feature: Copy Order ID in Success Modal
 
-## Phase 2: Rebuild Server
-- [x] Rewrite server.js with Node.js http module (no Express)
-- [x] Manual routing for API endpoints
-- [x] Serve static HTML/CSS/JS files
+- [x] Add copy icon button next to Order ID in `public/order.html` success modal
+- [x] Add hidden “Copied!” feedback element in `public/order.html`
+- [x] Implement vanilla JS clipboard copy (navigator.clipboard with fallback) and feedback toggle in `public/order.html`
+- [x] Add modern CSS for copy button + feedback + mobile wrapping in `public/style.css`
+- [ ] Manual test: place order, click copy, verify clipboard contents + feedback
 
-## Phase 3: Cleanup Routes
-- [x] Remove routes/orders.js (routing now in server.js)
-
-## Phase 4: Verify & Test
-- [ ] Verify MongoDB connection
-- [ ] Test all API endpoints
-- [ ] Verify frontend functionality
-
-## Dependencies After Rebuild:
-- mongoose ^8.21.0 (only dependency)
 
