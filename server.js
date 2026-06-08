@@ -29,31 +29,7 @@ const PORT = process.env.PORT || 3001;
  * Uses a counter stored in a file to maintain sequence
  */
 async function generateTrackingId() {
-  const counterFile = path.join(__dirname, 'data', 'order-counter.json');
-  const dataDir = path.join(__dirname, 'data');
-  
-  // Create data directory if it doesn't exist
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-  
-  let counter = 1;
-  
-  // Read current counter
-  if (fs.existsSync(counterFile)) {
-    try {
-      const data = JSON.parse(fs.readFileSync(counterFile, 'utf8'));
-      counter = (data.counter || 0) + 1;
-    } catch (e) {
-      counter = 1;
-    }
-  }
-  
-  // Save new counter
-  fs.writeFileSync(counterFile, JSON.stringify({ counter }, null, 2));
-  
-  // Generate tracking ID with zero-padding (ID001, ID002, ... ID010, ID011, etc.)
-  const trackingId = `ID${String(counter).padStart(3, '0')}`;
+  const trackingId = `ID${Date.now()}`;
   return trackingId;
 }
 
