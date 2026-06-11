@@ -60,11 +60,49 @@
 
         <!-- Binding Option -->
         <div class="form-group">
-          <label class="checkbox-group">
-            <input type="checkbox" id="binding">
-            <span>📎 Add Binding (+₹50)</span>
-          </label>
+          <div class="binding-section" role="radiogroup" aria-label="Select binding type">
+            <input type="hidden" id="bindingType" name="bindingType" value="soft-binding" />
+
+            <div class="binding-grid">
+              <label class="binding-card" aria-label="Soft Binding">
+                <input class="binding-radio" type="radio" name="bindingTypeRadio" value="soft-binding" checked />
+                <span class="binding-card-inner">
+                  <img class="binding-card-image" src="soft.png" alt="Soft Binding" />
+                  <span class="binding-card-title">Soft Binding</span>
+                  <span class="binding-card-price">₹50</span>
+                </span>
+              </label>
+
+              <label class="binding-card" aria-label="Spiral Binding">
+                <input class="binding-radio" type="radio" name="bindingTypeRadio" value="spiral-binding" />
+                <span class="binding-card-inner">
+                  <img class="binding-card-image" src="spiral.png" alt="Spiral Binding" />
+                  <span class="binding-card-title">Spiral Binding</span>
+                  <span class="binding-card-price">₹50</span>
+                </span>
+              </label>
+
+              <label class="binding-card" aria-label="Corner Stapling">
+                <input class="binding-radio" type="radio" name="bindingTypeRadio" value="corner-stapling" />
+                <span class="binding-card-inner">
+                  <img class="binding-card-image" src="corner.jpg" alt="Corner Stapling" />
+                  <span class="binding-card-title">Corner Stapling</span>
+                  <span class="binding-card-price">₹0</span>
+                </span>
+              </label>
+
+              <label class="binding-card" aria-label="Loose Sheets">
+                <input class="binding-radio" type="radio" name="bindingTypeRadio" value="loose-sheets" />
+                <span class="binding-card-inner">
+                  <img class="binding-card-image" src="loose.jpg" alt="Loose Sheets" />
+                  <span class="binding-card-title">Loose Sheets</span>
+                  <span class="binding-card-price">₹0</span>
+                </span>
+              </label>
+            </div>
+          </div>
         </div>
+
 
         <!-- Price Display -->
         <div class="price-display">
@@ -112,14 +150,25 @@
 
   <script>
     const PRICE_PER_PAGE = 2;
+
+    // Binding options pricing map
+
+
+    // (Kept for backward compatibility if other logic relies on it)
     const BINDING_PRICE = 50;
+
     const MAX_FILE_SIZE = 50 * 1024 * 1024;
+
 
     const fileInput = document.getElementById('fileInput');
     const fileUploadArea = document.getElementById('fileUploadArea');
     const fileList = document.getElementById('fileList');
     const copiesInput = document.getElementById('copies');
-    const bindingInput = document.getElementById('binding');
+    const bindingTypeHidden = document.getElementById('bindingType');
+    const bindingTypeRadios = Array.from(document.querySelectorAll('.binding-radio'));
+    const getSelectedBindingType = () => bindingTypeHidden?.value || 'soft-binding';
+    let bindingType = getSelectedBindingType();
+
     const totalPriceEl = document.getElementById('totalPrice');
     const orderForm = document.getElementById('orderForm');
     const confirmationModal = document.getElementById('confirmationModal');
@@ -260,19 +309,54 @@
       fileInput.value = '';
     }
 
+    const BINDING_PRICES = {
+      'soft-binding': 50,
+      'spiral-binding': 50,
+      'corner-stapling': 0,
+      'loose-sheets': 0
+    };
+
     function updatePrice() {
       const copies = parseInt(copiesInput.value) || 1;
-      const binding = bindingInput.checked;
-      
+      const selectedType = bindingType;
+      const bindingCost = BINDING_PRICES[selectedType] ?? 0;
+
       const printCost = totalPages * copies * PRICE_PER_PAGE;
-      const bindingCost = binding ? BINDING_PRICE : 0;
       const total = printCost + bindingCost;
-      
+
       totalPriceEl.textContent = total;
     }
 
     copiesInput.addEventListener('input', updatePrice);
-    bindingInput.addEventListener('change', updatePrice);
+
+    bindingTypeRadios.forEach((radio) => {
+      radio.addEventListener('change', () => {
+        const selected = radio.value;
+        bindingType = selected;
+        if (bindingTypeHidden) bindingTypeHidden.value = selected;
+
+        // Toggle selected card styling (CSS handles .is-selected)
+        bindingTypeRadios.forEach((r) => {
+          const card = r.closest('.binding-card');
+          if (card) card.classList.toggle('is-selected', r === radio);
+        });
+
+        // Backend currently expects boolean binding. Soft/Spiral are billed as binding.
+        const isBinding = selected === 'soft-binding' || selected === 'spiral-binding';
+        const bindingCheckbox = document.getElementById('binding');
+        if (bindingCheckbox) bindingCheckbox.checked = isBinding;
+
+        updatePrice();
+      });
+    });
+
+    // Initial selected styling
+    bindingTypeRadios.forEach((r) => {
+      const card = r.closest('.binding-card');
+      if (card) card.classList.toggle('is-selected', r.checked);
+    });
+
+
 
     orderForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -290,7 +374,11 @@
       formData.append('customerName', document.getElementById('customerName').value);
       formData.append('phone', document.getElementById('phone').value);
       formData.append('copies', copiesInput.value);
-      formData.append('binding', bindingInput.checked);
+      // Backend expects `binding` as boolean-ish string for (+₹50)
+      const isBinding = bindingType === 'soft-binding' || bindingType === 'spiral-binding';
+      formData.append('binding', isBinding);
+      formData.append('bindingType', bindingType);
+
       
       selectedFiles.forEach((file) => {
         formData.append('files', file);

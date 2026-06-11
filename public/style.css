@@ -269,6 +269,142 @@ body {
   box-shadow: var(--shadow);
 }
 
+/* Binding Cards */
+.binding-section {
+  width: 100%;
+}
+
+.binding-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  justify-content: center;
+}
+
+.binding-card {
+  background: var(--bg-white);
+  border: 2px solid transparent;
+  border-radius: 16px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.22s ease, background-color 0.22s ease, box-shadow 0.22s ease;
+  box-shadow: 0 0 0 rgba(48, 61, 88, 0);
+  user-select: none;
+}
+
+.binding-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+  border-color: rgba(49, 126, 199, 0.25);
+}
+
+.binding-card:active {
+  transform: translateY(-1px);
+}
+
+.binding-card-image {
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto 0.75rem auto;
+  background: var(--bg-light);
+  transition: transform 0.22s ease;
+}
+
+.binding-card:hover .binding-card-image {
+  transform: scale(1.04);
+}
+
+.binding-card-title {
+  display: block;
+  text-align: center;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 0.25rem;
+}
+
+.binding-card-price {
+  display: block;
+  text-align: center;
+  font-weight: 800;
+  color: var(--primary-color);
+  font-size: 1.25rem;
+}
+
+/* Hidden radio buttons */
+.binding-radio {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Selected state driven by radio */
+.binding-card-inner {
+  display: block;
+}
+
+/* Selected state toggled by JS (touch friendly) */
+.binding-card.is-selected {
+  border-color: #0b5ed7;
+  background: rgba(49, 126, 199, 0.12);
+  box-shadow: 0 12px 30px rgba(49, 126, 199, 0.18);
+}
+
+/* Accessibility */
+.binding-radio:focus-visible + .binding-card-inner {
+  outline: none;
+}
+
+.binding-card:focus-within {
+  box-shadow: 0 0 0 3px rgba(49, 126, 199, 0.22);
+}
+
+
+
+/* Responsive: Tablet */
+@media (max-width: 1023px) {
+  .binding-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Responsive: Mobile */
+@media (max-width: 767px) {
+
+  .binding-grid {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .binding-card {
+    flex: 1;
+    padding: 4px;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  .binding-card-image {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 4px;
+  }
+
+  .binding-card-title {
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .binding-card-price {
+    font-size: 11px;
+    font-weight: 700;
+  }
+}
+
+
 .form-group {
   margin-bottom: 1.5rem;
 }
