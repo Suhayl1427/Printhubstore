@@ -13,11 +13,21 @@
       <a href="/" class="logo">
   <img src="printminspic.webp" alt="PrintMinutes Logo" class="logo-img">
 </a>
-      <ul class="nav-links">
-        <li><a href="index.html" class="active">Home</a></li>
-        <li><a href="order.html">Place Order</a></li>
-        <li><a href="tracking.html">Track Order</a></li>
-        
+      <button
+        class="nav-hamburger"
+        type="button"
+        aria-label="Open navigation menu"
+        aria-controls="mobileMenu"
+        aria-expanded="false"
+        id="navHamburger"
+      >
+        ☰
+      </button>
+
+      <ul class="nav-links" id="mobileMenu">
+        <li><a href="index.html" class="active" data-navlink>Home</a></li>
+        <li><a href="order.html" data-navlink>Place Order</a></li>
+        <li><a href="tracking.html" data-navlink>Track Order</a></li>
       </ul>
     </div>
   </nav>
@@ -82,8 +92,54 @@
   <footer class="footer">
     <p>&copy; 2024 PRINTHUB. All rights reserved.</p>
   </footer>
+
+  <script>
+    (function () {
+      const hamburger = document.getElementById('navHamburger');
+      const menu = document.getElementById('mobileMenu');
+      if (!hamburger || !menu) return;
+
+      const closeMenu = () => {
+        menu.classList.remove('nav-menu-open');
+        hamburger.setAttribute('aria-expanded', 'false');
+        hamburger.setAttribute('aria-label', 'Open navigation menu');
+      };
+
+      const openMenu = () => {
+        menu.classList.add('nav-menu-open');
+        hamburger.setAttribute('aria-expanded', 'true');
+        hamburger.setAttribute('aria-label', 'Close navigation menu');
+      };
+
+      const toggleMenu = () => {
+        const isOpen = menu.classList.contains('nav-menu-open');
+        if (isOpen) closeMenu(); else openMenu();
+      };
+
+      hamburger.addEventListener('click', toggleMenu);
+
+      hamburger.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleMenu();
+        }
+      });
+
+      menu.addEventListener('click', (e) => {
+        const link = e.target.closest('a[data-navlink]');
+        if (link) closeMenu();
+      });
+
+      window.addEventListener('resize', () => {
+        if (window.innerWidth >= 769) closeMenu();
+      });
+
+      closeMenu();
+    })();
+  </script>
 </body>
 </html>
+
 
 
 
