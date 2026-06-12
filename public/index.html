@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PrintMinutes - Online Printing & Binding Service</title>
   <link rel="stylesheet" href="style.css">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Urbanist:wght@100..900&display=swap" rel="stylesheet">
 </head>
 <body>
   <!-- Navigation -->
@@ -44,49 +49,81 @@
   <!-- Services Section -->
   <section class="services">
     <h2 class="section-title">Our Services</h2>
-    <div class="services-grid">
-      <div class="service-card">
-        <div class="service-icon">📄</div>
-        <h3>Black & White Printing</h3>
-        <p>High-quality black & white prints</p>
-        <div class="service-price">₹2 per page</div>
-      </div>
-      <div class="service-card">
-        <div class="service-icon">📎</div>
-        <h3>Binding Service</h3>
-        <p>Professional document binding</p>
-        <div class="service-price">₹50 per document</div>
-      </div>
-      <div class="service-card">
-        <div class="service-icon">📑</div>
-        <h3>Multi-Page Documents</h3>
-        <p>Handle any number of pages</p>
-        <div class="service-price">Auto-calculated</div>
-      </div>
+
+    <div class="services-cards-grid">
+      <a class="service-image-card" href="/order" data-service-card>
+        <div class="service-image-card-media">
+          <img src="greyscale.png" alt="Grey Scale" />
+          <div class="service-image-card-badge">Grey Scale</div>
+        </div>
+        <button type="button" class="service-print-now" data-service-print-now>
+          Print Now
+        </button>
+      </a>
+
+      <a class="service-image-card" href="/order" data-service-card>
+        <div class="service-image-card-media">
+          <img src="colour.png" alt="Color Print" />
+          <div class="service-image-card-badge">Color Print</div>
+        </div>
+        <button type="button" class="service-print-now" data-service-print-now>
+          Print Now
+        </button>
+      </a>
+
+      <a class="service-image-card" href="/order" data-service-card>
+        <div class="service-image-card-media">
+          <img src="soft.png" alt="Soft Binding" />
+          <div class="service-image-card-badge">Soft Binding</div>
+        </div>
+        <button type="button" class="service-print-now" data-service-print-now>
+          Print Now
+        </button>
+      </a>
+
+      <a class="service-image-card" href="/order" data-service-card>
+        <div class="service-image-card-media">
+          <img src="spiral.png" alt="Spiral Binding" />
+          <div class="service-image-card-badge">Spiral Binding</div>
+        </div>
+        <button type="button" class="service-print-now" data-service-print-now>
+          Print Now
+        </button>
+      </a>
     </div>
   </section>
 
   <!-- How It Works -->
   <section class="services">
     <h2 class="section-title">How It Works</h2>
-    <div class="services-grid">
-      <div class="service-card">
-        <div class="service-icon">1️⃣</div>
-        <h3>Upload Document</h3>
-        <p>Upload your PDF, DOC, DOCX, JPG, or PNG files</p>
+
+    <div class="howitworks-grid">
+      <div class="howitworks-card">
+        <div class="howitworks-number">1</div>
+        <div class="howitworks-content">
+          <h3>Upload Document</h3>
+          <p>Upload your PDF, DOC, DOCX, JPG, or PNG files</p>
+        </div>
       </div>
-      <div class="service-card">
-        <div class="service-icon">2️⃣</div>
-        <h3>Customize Options</h3>
-        <p>Select copies and binding if needed</p>
+
+      <div class="howitworks-card">
+        <div class="howitworks-number">2</div>
+        <div class="howitworks-content">
+          <h3>Customize Print</h3>
+          <p>Select copies and binding if needed</p>
+        </div>
       </div>
-      <div class="service-card">
-        <div class="service-icon">3️⃣</div>
-        <h3>Track & Collect</h3>
-        <p>Track your order and collect when ready</p>
+
+      <div class="howitworks-card">
+        <div class="howitworks-number">3</div>
+        <div class="howitworks-content">
+          <h3>Track Your Order</h3>
+          <p>Track your order and collect</p>
+        </div>
       </div>
     </div>
   </section>
+
 
   <!-- Footer -->
   <footer class="footer">

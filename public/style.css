@@ -6,7 +6,12 @@
 }
 
 :root {
+  /* Typography */
+  --font-primary: 'Urbanist', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  --font-heading: 'Montserrat', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
   --primary-color: #303d58;
+
   --primary-dark: #202c4b;
   --secondary-color: #059669;
   --accent-color: #317ec7;
@@ -25,12 +30,14 @@
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--font-primary);
+  font-weight: 400;
   background: var(--bg-light);
   color: var(--text-dark);
   line-height: 1.6;
   min-height: 100vh;
 }
+
 
 /* Navigation */
 .navbar {
@@ -81,8 +88,10 @@ body {
   padding: 0.5rem 1rem;
   border-radius: 8px;
   transition: var(--transition);
-  font-weight: 500;
+  font-family: var(--font-primary);
+  font-weight: 600;
 }
+
 
 .nav-links a:hover {
   background: var(--bg-light);
@@ -92,6 +101,17 @@ body {
 .nav-links a.active {
   background: var(--primary-color);
   color: rgb(255, 255, 255);
+}
+
+/* Typography hierarchy (SaaS/corporate) */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 800;
+}
+
+/* Ensure body-like elements inherit Urbanist */
+p, label, input, textarea, select, button {
+  font-family: var(--font-primary);
 }
 
 /* Hero Section */
@@ -136,6 +156,7 @@ body {
   padding: 1rem 2rem;
   border-radius: var(--radius);
   text-decoration: none;
+  font-family: var(--font-primary);
   font-weight: 600;
   font-size: 1.1rem;
   cursor: pointer;
@@ -143,6 +164,7 @@ body {
   transition: var(--transition);
   text-align: center;
 }
+
 
 .btn-primary {
   background: var(--accent-color);
@@ -213,51 +235,144 @@ body {
   color: var(--text-dark);
 }
 
-.services-grid {
+/* --- Redesign: Our Services cards (image-based) --- */
+.services-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 2rem;
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
-.service-card {
-  background: var(--bg-light);
+.service-image-card {
+  display: block;
+  text-decoration: none;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg-white);
+  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.service-image-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(16, 24, 40, 0.12);
+}
+
+.service-image-card-media {
+  position: relative;
+  width: 100%;
+  height: 240px;
+}
+
+.service-image-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.service-image-card-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #dc2626;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  z-index: 2;
+}
+
+.service-print-now {
+  display: block;
+  margin: 0.75rem auto 1.25rem auto;
+  background: #317ec7;
+  color: #ffffff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.service-print-now:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(49, 126, 199, 0.22);
+}
+
+/* --- Redesign: How it works --- */
+.howitworks-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.howitworks-card {
+  background: var(--bg-white);
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
   padding: 2rem;
-  border-radius: var(--radius);
-  text-align: center;
-  transition: var(--transition);
-  border: 2px solid transparent;
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
 }
 
-.service-card:hover {
-  border-color: var(--primary-color);
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+.howitworks-number {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: var(--bg-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: var(--primary-color);
+  font-size: 1.75rem;
 }
 
-.service-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.service-card h3 {
-  font-size: 1.25rem;
+.howitworks-content h3 {
   margin-bottom: 0.5rem;
   color: var(--text-dark);
 }
 
-.service-card p {
+.howitworks-content p {
   color: var(--text-gray);
   font-size: 1.1rem;
 }
 
-.service-price {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--primary-color);
-  margin-top: 1rem;
+/* Responsive behavior for redesigned grids */
+@media (max-width: 1023px) {
+  .services-cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .howitworks-grid {
+    grid-template-columns: 1fr;
+  }
 }
+
+@media (max-width: 767px) {
+  .services-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .service-image-card-media {
+    height: 210px;
+  }
+
+  .howitworks-card {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* Legacy styles retained below (no longer used by home 
 
 /* Form Styles */
 .form-container {
@@ -524,9 +639,11 @@ body {
   display: inline-block;
   padding: 0.5rem 1rem;
   border-radius: 50px;
+  font-family: var(--font-primary);
   font-weight: 600;
   font-size: 0.875rem;
 }
+
 
 .status-pending {
   background: #fef3c7;
