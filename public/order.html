@@ -76,17 +76,19 @@
         <!-- Binding Option -->
         <div class="form-group">
           <div class="binding-section" role="radiogroup" aria-label="Select binding type">
-            <input type="hidden" id="bindingType" name="bindingType" value="soft-binding" />
+            <input type="hidden" id="bindingType" name="bindingType" value="loose-sheets" />
+
 
             <div class="binding-grid">
               <label class="binding-card" aria-label="Soft Binding">
-                <input class="binding-radio" type="radio" name="bindingTypeRadio" value="soft-binding" checked />
+                <input class="binding-radio" type="radio" name="bindingTypeRadio" value="soft-binding" />
                 <span class="binding-card-inner">
                   <img class="binding-card-image" src="soft.png" alt="Soft Binding" />
                   <span class="binding-card-title">Soft Binding</span>
                   <span class="binding-card-price">₹50</span>
                 </span>
               </label>
+
 
               <label class="binding-card" aria-label="Spiral Binding">
                 <input class="binding-radio" type="radio" name="bindingTypeRadio" value="spiral-binding" />
@@ -102,16 +104,17 @@
                 <span class="binding-card-inner">
                   <img class="binding-card-image" src="corner.jpg" alt="Corner Stapling" />
                   <span class="binding-card-title">Corner Stapling</span>
-                  <span class="binding-card-price">₹0</span>
+                  <span class="binding-card-price">Free</span>
                 </span>
               </label>
 
               <label class="binding-card" aria-label="Loose Sheets">
-                <input class="binding-radio" type="radio" name="bindingTypeRadio" value="loose-sheets" />
+                <input class="binding-radio" type="radio" name="bindingTypeRadio" value="loose-sheets" checked />
+
                 <span class="binding-card-inner">
                   <img class="binding-card-image" src="loose.jpg" alt="Loose Sheets" />
                   <span class="binding-card-title">Loose Sheets</span>
-                  <span class="binding-card-price">₹0</span>
+                  <span class="binding-card-price">Free</span>
                 </span>
               </label>
             </div>
@@ -135,11 +138,11 @@
   <div class="modal" id="confirmationModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>🎉 Order Placed Successfully!</h3>
+        <h3>🎉 Order Placed Successfully! </h3>
         <button class="modal-close" onclick="closeModal()">&times;</button>
       </div>
       <div class="modal-body">
-        <p style="text-align: center; margin-bottom: 1rem;">Your order has been placed successfully!</p>
+        <p style="text-align: center; margin-bottom: 1rem;">! Please Copy The Order ID</p>
         <div style="background: var(--bg-light); padding: 1.5rem; border-radius: 8px; text-align: center;">
           <p class="order-id-row">
             <strong>Order ID:</strong>
@@ -159,7 +162,7 @@
         </div>
       <div class="modal-footer">
         <button class="btn btn-outline" onclick="closeModal()">Close</button>
-        <a href="tracking.html" class="btn btn-primary">📍 Track Order</a>
+        <a href="tracking.html" class="btn btn-primary"> Track Your Order</a>
       </div>
   </div>
 
@@ -370,6 +373,9 @@
       const card = r.closest('.binding-card');
       if (card) card.classList.toggle('is-selected', r.checked);
     });
+
+
+
 
 
 

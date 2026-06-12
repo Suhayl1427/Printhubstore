@@ -310,8 +310,22 @@ p, label, input, textarea, select, button {
   gap: 2rem;
   max-width: 1100px;
   margin: 0 auto;
+  /* extra separation + subtle lift under the cards (helps match screenshot) */
+  padding-top: 0.25rem;
 }
 
+/* Extra drop shadow treatment for the How It Works cards */
+.howitworks-card {
+  transition: all 0.3s ease;
+  box-shadow:
+    0 10px 30px rgba(16, 24, 40, 0.12);
+}
+
+.howitworks-card:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 20px 50px rgba(16, 24, 40, 0.18);
+}
 .howitworks-card {
   background: var(--bg-white);
   border-radius: 12px;
