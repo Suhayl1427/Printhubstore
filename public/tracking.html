@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Track Order - PrintMinutes</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="tracking-ui.css">
+
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -51,75 +53,102 @@
       </div>
 
       <div class="tracking-result" id="trackingResult" style="display: none;">
-        <h2 style="margin-bottom: 1rem;"> Order Details</h2>
-        
-        <div class="panel-strong" style="text-align: center; margin-bottom: 1.5rem;">
+        <h2 class="pt-title" style="margin-bottom: 0;">Order Details</h2>
+
+        <!-- CARD 1: ORDER STATUS TIMELINE -->
+        <div class="pt-card" style="padding: 0; overflow: hidden; margin-top: 16px;">
+          <div style="padding: 20px 20px 14px 20px;">
+            <h3 style="font-size: 14px; font-weight: 800; letter-spacing: .02em; color: var(--pt-muted); margin-bottom: 14px; text-transform: uppercase;">
+              Order Status Timeline
+            </h3>
+          </div>
+
+          <div class="pt-card pt-animate" style="margin-top: 0; border-radius: 0; box-shadow: none; background: transparent; padding: 0 20px 20px 20px;">
+            <div class="pt-timeline" id="statusTimeline">
+              <div class="pt-step" id="timelineOrderPlaced">
+                <div class="pt-dot" aria-label="Order Placed" role="img"></div>
+                <div class="pt-step-label">Order Placed</div>
+                <div class="pt-step-desc">Your order has been received</div>
+              </div>
+
+              <div class="pt-step" id="timelinePrinting">
+                <div class="pt-dot" aria-label="Printing" role="img"></div>
+                <div class="pt-step-label">Printing</div>
+                <div class="pt-step-desc">Your documents are being printing</div>
+              </div>
+
+              <div class="pt-step" id="timelineCompleted">
+                <div class="pt-dot" aria-label="Completed" role="img"></div>
+                <div class="pt-step-label">Completed</div>
+                <div class="pt-step-desc">Order is ready for pickup</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 2: ORDER INFORMATION -->
+        <div class="pt-card pt-card--details" style="margin-top: 16px;">
+          <div class="pt-kvgrid">
+            <div class="pt-row">
+              <div class="pt-k">Order ID</div>
+              <div class="pt-v" id="resultOrderId">-</div>
+            </div>
+
+            <div class="pt-row">
+              <div class="pt-k">Customer Name</div>
+              <div class="pt-v" id="resultCustomerName">-</div>
+            </div>
+
+            <div class="pt-row">
+              <div class="pt-k">Mobile Number</div>
+              <div class="pt-v" id="resultPhone">-</div>
+            </div>
+
+            <div class="pt-row" style="grid-column: 1 / -1;">
+              <div class="pt-k">Uploaded Files</div>
+              <div class="pt-v" style="font-weight: 600;">
+                <div id="resultFiles" style="margin-top: 8px; width: 100%;"></div>
+              </div>
+            </div>
+
+            <div class="pt-row">
+              <div class="pt-k">Total Pages</div>
+              <div class="pt-v" id="resultPages">-</div>
+            </div>
+
+            <div class="pt-row">
+              <div class="pt-k">Copies</div>
+              <div class="pt-v" id="resultCopies">-</div>
+            </div>
+
+            <div class="pt-row">
+              <div class="pt-k">Binding</div>
+              <div class="pt-v" id="resultBinding">-</div>
+            </div>
+
+            <div class="pt-row">
+              <div class="pt-k">Order Date</div>
+              <div class="pt-v" id="resultDate">-</div>
+            </div>
+          </div>
+
+          <!-- Price section -->
+          <div class="pt-price" aria-label="Total Price">
+            <div class="pt-price-inner">
+              Total : <span id="resultPriceTotal">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- legacy badge kept hidden (no longer shown) -->
+        <div class="tracking-result" id="orderStatusLegacy" style="display:none;">
           <span class="status-badge" id="orderStatus">Pending</span>
         </div>
 
-
-        <div class="order-details panel" style="padding: 1.5rem; border-radius: 12px;">
-
-          <div class="detail-row">
-            <span><strong>Order ID</strong></span>
-            <span id="resultOrderId">-</span>
-          </div>
-          <div class="detail-row">
-            <span><strong>Customer Name</strong></span>
-            <span id="resultCustomerName">-</span>
-          </div>
-          <div class="detail-row">
-            <span><strong>Phone</strong></span>
-            <span id="resultPhone">-</span>
-          </div>
-          
-          <div class="detail-row" style="flex-direction: column; align-items: flex-start;">
-            <span><strong>Uploaded Files</strong></span>
-            <div id="resultFiles" style="margin-top: 0.5rem; width: 100%;"></div>
-          
-          <div class="detail-row">
-            <span><strong>Total Pages</strong></span>
-            <span id="resultPages">-</span>
-          </div>
-          <div class="detail-row">
-            <span><strong>Copies</strong></span>
-            <span id="resultCopies">-</span>
-          </div>
-          <div class="detail-row">
-            <span><strong>Binding</strong></span>
-            <span id="resultBinding">-</span>
-          </div>
-          <div class="detail-row">
-            <span><strong>Total Price</strong></span>
-            <span id="resultPrice">-</span>
-          </div>
-          <div class="detail-row">
-            <span><strong>Order Date</strong></span>
-            <span id="resultDate">-</span>
-          </div>
-
-        <div style="margin-top: 2rem;">
-          <h3 style="margin-bottom: 1rem;">Order Progress</h3>
-          <div id="statusTimeline" style="position: relative; padding-left: 2rem;">
-            <div class="timeline-item" id="timelinePending" style="position: relative; padding-bottom: 1.5rem;">
-              <div style="position: absolute; left: -1.5rem; width: 20px; height: 20px; background: #ddd; border-radius: 50%;"></div>
-              <p><strong>Order Placed</strong></p>
-              <p style="font-size: 0.875rem; color: var(--text-gray);">Your order has been received</p>
-            </div>
-            <div class="timeline-item" id="timelinePrinting" style="position: relative; padding-bottom: 1.5rem;">
-              <div style="position: absolute; left: -1.5rem; width: 20px; height: 20px; background: #ddd; border-radius: 50%;"></div>
-              <p><strong>Printing</strong></p>
-              <p style="font-size: 0.875rem; color: var(--text-gray);">Your documents are being printed</p>
-            </div>
-            <div class="timeline-item" id="timelineCompleted" style="position: relative;">
-              <div style="position: absolute; left: -1.5rem; width: 20px; height: 20px; background: #ddd; border-radius: 50%;"></div>
-              <p><strong>Completed</strong></p>
-              <p style="font-size: 0.875rem; color: var(--text-gray);">Order is ready for pickup</p>
-            </div>
-        </div>
+      </div>
 
       <div class="tracking-result" id="notFound" style="text-align: center; display: none;">
-        <div class="empty-state-icon">🔍</div>
+        <div class="empty-state-icon"></div>
         <h3>Order Not Found</h3>
         <p>Please check your Order ID and try again.</p>
       </div>
@@ -175,7 +204,11 @@
       document.getElementById('resultPages').textContent = order.totalPages || '-';
       document.getElementById('resultCopies').textContent = order.copies || '-';
       document.getElementById('resultBinding').textContent = order.binding ? 'Yes (+₹50)' : 'No';
-      document.getElementById('resultPrice').textContent = order.totalPrice ? `₹${order.totalPrice}` : '-';
+
+      // Total price (new layout)
+      const priceText = order.totalPrice ? `₹${order.totalPrice}` : '-';
+      const priceTotalEl = document.getElementById('resultPriceTotal');
+      if (priceTotalEl) priceTotalEl.textContent = priceText;
       
       if (order.createdAt) {
         const date = new Date(order.createdAt);
@@ -203,36 +236,50 @@
       }
 
       if (files && files.length > 0) {
-        let filesHtml = '<div style="background: var(--bg-light); padding: 0.75rem; border-radius: 6px;">';
-        if (files.length === 1) {
-          filesHtml += `<div>📄 ${files[0].originalName || files[0]}</div>`;
-        } else {
-          files.forEach(file => {
-            const name = file.originalName || file;
-            const pages = file.pages || '-';
-            filesHtml += `<div style="display: flex; justify-content: space-between; padding: 0.25rem 0;">
-              <span>📄 ${name}</span>
-              <span style="color: var(--text-gray);">${pages} p</span>
-            </div>`;
-          });
-        }
+        let filesHtml = '<div style="display:grid; gap:10px;">';
+
+        files.forEach(file => {
+          const fileObj = file && typeof file === 'object' ? file : { originalName: file };
+          const name = fileObj.originalName || fileObj.filename || fileObj.path || '-';
+          const pages = fileObj.pages || '-';
+
+          // Keep download functionality if already implemented via /api/files/:filename
+          const filename = fileObj.filename;
+          const downloadHref = filename ? `/api/files/${filename}` : null;
+          const fileNameEl = downloadHref
+            ? `<a href="${downloadHref}" target="_blank" rel="noopener" style="text-decoration:none; color: var(--pt-text); font-weight: 800;">📄 ${name}</a>`
+            : `<div style="font-weight: 800; color: var(--pt-text);">📄 ${name}</div>`;
+
+          filesHtml += `
+            <div style="border: 1px solid var(--pt-border); background:#f8fafc; border-radius:12px; padding:12px 14px;">
+              ${fileNameEl}
+              <div style="margin-top:4px; color: var(--pt-muted); font-size:12.5px; display:flex; justify-content:space-between;">
+                <span></span>
+                <span>${pages} p</span>
+              </div>
+            </div>
+          `;
+        });
+
         filesHtml += '</div>';
         filesEl.innerHTML = filesHtml;
       } else {
-        filesEl.innerHTML = '<span style="color: var(--text-gray);">No files</span>';
+        filesEl.innerHTML = '<span style="color: var(--pt-muted);">No files</span>';
       }
 
-      // Update status badge
+      // Update status badge (legacy hidden)
       const statusEl = document.getElementById('orderStatus');
-      statusEl.textContent = order.status || 'Pending';
-      statusEl.className = 'status-badge';
-      
-      if (order.status === 'Pending') {
-        statusEl.classList.add('status-pending');
-      } else if (order.status === 'Printing') {
-        statusEl.classList.add('status-printing');
-      } else if (order.status === 'Completed') {
-        statusEl.classList.add('status-completed');
+      if (statusEl) {
+        statusEl.textContent = order.status || 'Pending';
+        statusEl.className = 'status-badge';
+        
+        if (order.status === 'Pending') {
+          statusEl.classList.add('status-pending');
+        } else if (order.status === 'Printing') {
+          statusEl.classList.add('status-printing');
+        } else if (order.status === 'Completed') {
+          statusEl.classList.add('status-completed');
+        }
       }
 
       // Update timeline
@@ -243,20 +290,24 @@
 
     function updateTimeline(status) {
       const displayOrder = ['Pending', 'Printing', 'Completed'];
-      const currentIndex = displayOrder.indexOf(status);
+      const currentIndex = Math.max(0, displayOrder.indexOf(status));
 
       for (let i = 0; i < 3; i++) {
-        const item = document.querySelectorAll('#statusTimeline > div')[i];
-        const dot = item.querySelector('div:first-child');
-        
+        const stepEl = document.querySelectorAll('#statusTimeline > div')[i];
+        if (!stepEl) continue;
+        const dot = stepEl.querySelector('.pt-dot');
+        if (!dot) continue;
+
+        dot.classList.remove('is-completed', 'is-current');
+
         if (i < currentIndex) {
-          dot.style.background = 'var(--success-color)';
+          dot.classList.add('is-completed');
         } else if (i === currentIndex) {
-          dot.style.background = 'var(--primary-color)';
-        } else {
-          dot.style.background = '#ddd';
+          dot.classList.add('is-current');
         }
       }
+
+      // If status is unknown, keep all dots pending (default #e5e7eb)
     }
 
     document.getElementById('orderId').addEventListener('keypress', (e) => {
