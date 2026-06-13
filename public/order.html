@@ -50,8 +50,12 @@
 
         <div class="form-group">
           <label for="phone">Phone Number *</label>
-          <input type="tel" id="phone" class="form-control" required placeholder="Enter your phone number">
+          <input type="tel" id="phone" class="form-control" required placeholder="Enter your phone number" maxlength="10" inputmode="numeric" autocomplete="tel" />
+          <div id="phoneError" class="field-error" style="display:none; margin-top: 0.5rem; color: #dc2626; font-size: 0.875rem; font-weight: 600;">
+            Please enter a valid 10-digit mobile number.
+          </div>
         </div>
+
 
         <!-- Multi-File Upload -->
         <div class="form-group">
@@ -379,11 +383,63 @@
 
 
 
+    const phoneInput = document.getElementById('phone');
+    const phoneErrorEl = document.getElementById('phoneError');
+
+    function sanitizePhoneValue(v) {
+      return String(v || '').replace(/\D/g, '');
+    }
+
+    function setPhoneValidity(isValid) {
+      if (!phoneInput) return;
+
+      if (isValid) {
+        phoneInput.style.borderColor = '#16a34a';
+        if (phoneErrorEl) phoneErrorEl.style.display = 'none';
+      } else {
+        phoneInput.style.borderColor = '#dc2626';
+        if (phoneErrorEl) phoneErrorEl.style.display = 'block';
+      }
+    }
+
+    function validatePhoneNumber() {
+      if (!phoneInput) return true;
+
+      let value = sanitizePhoneValue(phoneInput.value);
+      value = value.slice(0, 10); // prevent typing beyond 10
+
+      // auto-remove non-numeric characters + enforce max length
+      if (phoneInput.value !== value) phoneInput.value = value;
+
+      const isValid = /^\d{10}$/.test(value);
+      setPhoneValidity(isValid);
+      return isValid;
+    }
+
+    if (phoneInput) {
+      // While typing
+      phoneInput.addEventListener('input', () => {
+        validatePhoneNumber();
+      });
+
+      // On blur
+      phoneInput.addEventListener('blur', () => {
+        validatePhoneNumber();
+      });
+    }
+
     orderForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
+
       if (selectedFiles.length === 0) {
         alert('⚠️ Please select at least one PDF file');
+        return;
+      }
+
+      // Before submission
+      const isPhoneValid = validatePhoneNumber();
+      if (!isPhoneValid) {
+        alert('Please enter a valid 10-digit mobile number.');
         return;
       }
 
@@ -393,8 +449,9 @@
       
       const formData = new FormData();
       formData.append('customerName', document.getElementById('customerName').value);
-      formData.append('phone', document.getElementById('phone').value);
+      formData.append('phone', phoneInput.value);
       formData.append('copies', copiesInput.value);
+
       // Backend expects `binding` as boolean-ish string for (+₹50)
       const isBinding = bindingType === 'soft-binding' || bindingType === 'spiral-binding';
       formData.append('binding', isBinding);
