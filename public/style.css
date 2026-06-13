@@ -954,18 +954,23 @@ p, label, input, textarea, select, button {
 
   .nav-hamburger {
     display: inline-flex !important;
-
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
+
+    width: 38px;
+    height: 38px;
+
     border-radius: 10px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-white);
-    color: var(--text-dark);
-    cursor: pointer;
-    transition: var(--transition);
-  }
+    border: 1px solid #e5e7eb;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 1px 2px rgba(0,0,0,0.05),
+        0 4px 8px rgba(0,0,0,0.06);
+
+    transition: all 0.3s ease;
+}
 
   .nav-hamburger:focus {
     outline: none;
