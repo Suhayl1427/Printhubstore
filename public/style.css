@@ -250,14 +250,19 @@ p, label, input, textarea, select, button {
   border-radius: 12px;
   overflow: hidden;
   background: var(--bg-white);
-  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow:
+    0 8px 20px rgba(16, 24, 40, 0.10),
+    0 16px 40px rgba(16, 24, 40, 0.08);
+  transition: all 0.3s ease;
 }
 
 .service-image-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 28px rgba(16, 24, 40, 0.12);
+  transform: translateY(-6px);
+  box-shadow:
+    0 15px 35px rgba(16, 24, 40, 0.15),
+    0 25px 60px rgba(16, 24, 40, 0.12);
 }
+
 
 .service-image-card-media {
   position: relative;
@@ -314,27 +319,28 @@ p, label, input, textarea, select, button {
   padding-top: 0.25rem;
 }
 
-/* Extra drop shadow treatment for the How It Works cards */
+/* How it works cards (single clean definition) */
 .howitworks-card {
+  background: var(--bg-white);
+  border-radius: 12px;
+  padding: 2rem;
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+
   transition: all 0.3s ease;
   box-shadow:
-    0 10px 30px rgba(16, 24, 40, 0.12);
+    0 8px 20px rgba(16, 24, 40, 0.10),
+    0 16px 40px rgba(16, 24, 40, 0.08);
 }
 
 .howitworks-card:hover {
   transform: translateY(-6px);
   box-shadow:
-    0 20px 50px rgba(16, 24, 40, 0.18);
+    0 15px 35px rgba(16, 24, 40, 0.15),
+    0 25px 60px rgba(16, 24, 40, 0.12);
 }
-.howitworks-card {
-  background: var(--bg-white);
-  border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
-  padding: 2rem;
-  display: flex;
-  gap: 1.25rem;
-  align-items: center;
-}
+
 
 .howitworks-number {
   width: 56px;
@@ -511,7 +517,7 @@ p, label, input, textarea, select, button {
   .binding-card {
     flex: 1;
     padding: 4px;
-    border: none;
+    border: 1px solid transparent;
     box-shadow: none;
     background: transparent;
   }
